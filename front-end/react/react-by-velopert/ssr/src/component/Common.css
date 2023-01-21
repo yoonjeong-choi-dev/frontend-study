@@ -1,0 +1,11 @@
+.color-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.5rem;
+  width: 128px;
+  height: 128px;
+
+  color: white;
+}
