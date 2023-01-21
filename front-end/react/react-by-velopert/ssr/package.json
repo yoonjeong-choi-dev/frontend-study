@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.2.3",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -43,8 +44,11 @@
     "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
     "react-refresh": "^0.11.0",
     "react-router-dom": "^6.7.0",
+    "redux": "^4.2.0",
+    "redux-thunk": "^2.4.2",
     "resolve": "^1.20.0",
     "resolve-url-loader": "^4.0.0",
     "sass-loader": "^12.3.0",
@@ -67,7 +71,8 @@
     "test": "node scripts/test.js",
     "start:server": "node dist/server.js",
     "build:server": "node scripts/build.server.js",
-    "build-and-run:server": "node scripts/build.server.js; node dist/server.js"
+    "build-and-run:server": "npm run build; npm run build:server",
+    "build-all-and-run-server": "npm run build; npm run build:server; node dist/server.js"
   },
   "eslintConfig": {
     "extends": [
@@ -142,5 +147,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "redux-devtools-extension": "^2.13.9"
   }
 }
