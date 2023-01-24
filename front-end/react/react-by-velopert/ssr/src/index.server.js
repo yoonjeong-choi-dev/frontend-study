@@ -27,6 +27,12 @@ const staticServer = express.static(path.resolve('./build'), {
 });
 app.use(staticServer);
 
+// 코드 스플리팅 작업
+// : ssr 이후, 브라우저에게 어떤 파일을 사전에 불러와야하는지를 알아내서 해당 파일의 경로를 추출을 위한 의존성
+import { ChunkExtractor, ChunkExtractorManager } from '@loadable/server';
+// after building client code...
+const statsFile = path.resolve('./build/loadable-stats.json');
+
 
 const serverRender = async (req, res, next) => {
   const context = {};
@@ -44,14 +50,19 @@ const serverRender = async (req, res, next) => {
     promises: []
   };
 
+  // 브라우저가 필요한 파일 추출
+  const extractor = new ChunkExtractor({statsFile});
+
   const jsx = (
-    <PreloadContext.Provider value={preloadContext}>
-      <Provider store={store}>
-        <StaticRouter location={req.url} context={context}>
-          <App/>
-        </StaticRouter>
-      </Provider>
-    </PreloadContext.Provider>
+    <ChunkExtractorManager extractor={extractor}>
+      <PreloadContext.Provider value={preloadContext}>
+        <Provider store={store}>
+          <StaticRouter location={req.url} context={context}>
+            <App/>
+          </StaticRouter>
+        </Provider>
+      </PreloadContext.Provider>
+    </ChunkExtractorManager>
   );
 
   // PreloadContext 컨텍스트를 이용하는 Preloader 컴포넌트 내부 로직(스토어 업데이트)를 위해서
@@ -74,11 +85,21 @@ const serverRender = async (req, res, next) => {
   const stateString = JSON.stringify(store.getState()).replace(/</g, '\\u003c');
   const stateScript = `<script>__YJ_PRELOADED_STATE__ = ${stateString}</script>`;
 
-  res.end(createPage(root, stateScript));
+  // ssr 이후, 브라우저에게 어떤 파일을 사전에 불러와야하는지 알리기 위해
+  // html에 삽입해야하는 스크립트/스타일 정의
+  const tags = {
+    scripts: stateScript + extractor.getScriptTags(),
+    links: extractor.getLinkTags(),
+    styles: extractor.getScriptTags(),
+  }
+
+  console.log(tags);
+
+  res.end(createPage(root, tags));
 };
 
 // stateScript : 서버에서 렌더링하면서 업데이트된 스토어의 상태 문자열로 주입
-function createPage(root, stateScript) {
+function createPage(root, tags) {
   return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -91,13 +112,15 @@ function createPage(root, stateScript) {
       <meta name="theme-color" content="#000000" />
       <title>SSR Tutorial</title>
       <link href="${manifest.files['main.css']}" rel="stylesheet" />
+      ${tags.styles}
+      ${tags.links}
     </head>
     <body>
       <noscript>You need to enable JavaScript to run this app.</noscript>
       <div id="root">
         ${root}
       </div>
-      ${stateScript}
+      ${tags.scripts}
       <script src="${manifest.files['main.js']}"></script>
     </body>
     </html>

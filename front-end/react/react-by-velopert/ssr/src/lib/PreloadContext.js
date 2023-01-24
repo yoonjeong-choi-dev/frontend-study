@@ -16,3 +16,10 @@ export const Preloader = ({resolve}) => {
   preloadContext.promises.push(Promise.resolve(resolve()));
   return null;
 }
+
+// Preloader 컴포넌트 대신 사용하는 커스텀 훅
+export const usePreloader = (resolve) => {
+  const preloadContext = useContext(PreloadContext);
+  if (!preloadContext || preloadContext.done) return null;
+  preloadContext.promises.push(Promise.resolve(resolve()));
+}

@@ -1,4 +1,4 @@
-import Blue from '../component/Blue';
+import Blue from '../../component/box/Blue';
 
 const BluePage = () => (
   <Blue/>

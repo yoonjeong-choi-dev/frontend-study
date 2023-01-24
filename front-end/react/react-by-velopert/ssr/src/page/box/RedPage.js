@@ -1,4 +1,4 @@
-import Red from '../component/Red';
+import Red from '../../component/box/Red';
 
 const RedPage = () => (
   <Red/>

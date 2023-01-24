@@ -4,8 +4,7 @@ const Users = ({users}) => {
   if (!users) return null;
 
   return (
-    <div style={{padding: '10px 0 0 20px'}}>
-      <h2>Users</h2>
+    <div>
       <ul>
         {users.map(user => (
           <li key={user.id}>
