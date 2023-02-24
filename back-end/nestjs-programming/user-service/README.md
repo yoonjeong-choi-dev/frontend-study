@@ -56,4 +56,32 @@
   * https://github.com/typestack/class-validator#custom-validation-decorators
   * `src/utils/decorators/not-in.ts`
 
-
+### Chapter 8. Database
+* 사용하는 데이터베이스 및 ORM
+  * MySql & TypeOrm
+  * `npm i typeorm@0.3.7 @nestjs/typeorm@9.0.0 mysql2`
+* AppModule 변경
+  * orm 설정
+  * 설정 시 필요한 연결 정보는 환경 변수로 설정
+* User Entity
+  * 테이블 정의
+  * user module 추가 이후, 서비스 구현
+* Transaction 설정
+  * 방법 1: TypeOrm QueryRunner 이용하여 커넥션 및 커밋,롤백 관리
+  * 방법 2: transaction 콜백 함수
+* Migration via TypeOrm
+  * `package.json`에 스크립트 추가
+  * `ormconfig.ts`에 데이터베이스 연결 정보 설정
+    * 해당 파일은 ConfigModule 이 환경변수를 읽기 전에 컴파일되어 환경 변수 사용하면 에러 발생
+    * 환경변수 사용하기 위해서는 typescript(`tsconfig.json`) 컴파일 옵션 변경 필요
+    * TODO: 연결 정보 환경변수로 빼내기
+  * 관련 스크립트
+    * 테스트 시에는 `synchronize` 옵션 false 설정
+    * `npm run typeorm:create src/migrations/CreateUserTable`
+      * empty MigrationInterface 구현체 생성
+    * `npm run typeorm migration:generate src/migrations/CreateUserTable -- -d ./ormconfig.ts`
+      * MigrationInterface 구현체 생성 및 메서드 구현
+    * `npm run typeorm migration:run -- -d ./ormconfig.ts`
+      * MigrationInterface 구현체를 이용하여 테이블 생성
+    * `npm run typeorm migration:revert -- -d ./ormconfig.ts`
+      * 마이그레이션 이전 버전으로 revert
