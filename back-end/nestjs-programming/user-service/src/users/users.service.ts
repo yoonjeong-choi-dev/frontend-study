@@ -2,6 +2,7 @@ import * as uuid from 'uuid';
 import {
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { EmailService } from '../email/email.service';
@@ -10,10 +11,12 @@ import { UserEntity } from './entity/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { ulid } from 'ulid';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
   constructor(
+    private authService: AuthService,
     private emailService: EmailService,
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
@@ -51,24 +54,6 @@ export class UsersService {
     return user !== null;
   }
 
-  // no transaction
-  private async saveUser(
-    name: string,
-    email: string,
-    password: string,
-    signupVerifyToken: string,
-  ) {
-    const user = new UserEntity();
-    user.id = ulid();
-    user.name = name;
-    user.email = email;
-    user.password = password;
-    user.signupVerifyToken = signupVerifyToken;
-
-    // save the entity to user repository
-    await this.usersRepository.save(user);
-  }
-
   private async saveUserUsingQueryRunner(
     name: string,
     email: string,
@@ -96,6 +81,8 @@ export class UsersService {
       // transaction test
       //throw new Error();
 
+      console.log('id', user.id);
+
       // commit
       await queryRunner.commitTransaction();
     } catch (e) {
@@ -107,6 +94,61 @@ export class UsersService {
     }
 
     return isSuccess;
+  }
+
+  async verifyEmail(signupVerifyToken: string): Promise<string> {
+    const user = await this.usersRepository.findOne({
+      where: { signupVerifyToken },
+    });
+
+    if (!user) {
+      throw new NotFoundException('there is no such a user');
+    }
+
+    return this.authService.signIn({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    });
+  }
+
+  async signIn(email: string, password: string): Promise<string> {
+    const user = await this.usersRepository.findOne({
+      where: { email, password },
+    });
+
+    if (!user) {
+      throw new NotFoundException('there is no such a user');
+    }
+
+    return this.authService.signIn({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    });
+  }
+
+  async getUserInfo(userId: string): Promise<UserInfo> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('there is no such a user');
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+  }
+
+  private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
+    await this.emailService.sendMemberJoinVerification(
+      email,
+      signupVerifyToken,
+    );
   }
 
   private async saveUserUsingTransaction(
@@ -129,29 +171,21 @@ export class UsersService {
     });
   }
 
-  private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
-    await this.emailService.sendMemberJoinVerification(
-      email,
-      signupVerifyToken,
-    );
-  }
+  // no transaction
+  private async saveUser(
+    name: string,
+    email: string,
+    password: string,
+    signupVerifyToken: string,
+  ) {
+    const user = new UserEntity();
+    user.id = ulid();
+    user.name = name;
+    user.email = email;
+    user.password = password;
+    user.signupVerifyToken = signupVerifyToken;
 
-  async verifyEmail(signupVerifyToken: string): Promise<string> {
-    // TODO: check user existence by token & publish token to sign in
-    throw new Error('Not Implemented');
-  }
-
-  async signIn(email: string, password: string): Promise<string> {
-    // TODO: check user existence by email, password & publish token to sign in
-    throw new Error('Not Implemented');
-  }
-
-  async getUserInfo(userId: string): Promise<UserInfo> {
-    // TODO: check user existence by userId
-    return {
-      id: userId,
-      name: 'temp user',
-      email: 'temp@example.com',
-    };
+    // save the entity to user repository
+    await this.usersRepository.save(user);
   }
 }

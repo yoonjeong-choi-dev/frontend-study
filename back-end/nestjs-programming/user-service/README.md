@@ -85,3 +85,15 @@
       * MigrationInterface 구현체를 이용하여 테이블 생성
     * `npm run typeorm migration:revert -- -d ./ormconfig.ts`
       * 마이그레이션 이전 버전으로 revert
+
+### Chapter 10. JWT Auth
+* jwt library
+  * jwtwebtoken
+  * `npm i -D @types/jsonwebtoken`
+  * `npm i jsonwebtoken`
+* 추가한 파일들
+  * authConfig for secret key used in JWT
+  * auth module
+    * injected to user service
+* 구현한 서비스
+  * sign-in

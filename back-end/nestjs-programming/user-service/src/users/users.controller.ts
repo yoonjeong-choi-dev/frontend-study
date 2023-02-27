@@ -1,14 +1,28 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Headers,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserInfo } from './UserInfo';
 import { UsersService } from './users.service';
+import { AuthService } from '../auth/auth.service';
+import AuthGuard from '../auth/auth.guard';
 
 @Controller('users')
 export class UsersController {
   // IOC for services
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService,
+  ) {}
 
   @Post()
   async createUser(@Body() dto: CreateUserDto): Promise<void> {
@@ -31,9 +45,27 @@ export class UsersController {
     return await this.usersService.signIn(email, password);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/:id')
-  async getUserInfo(@Param('id') userId: string): Promise<UserInfo> {
+  async getUserInfo(
+    @Headers() headers: any,
+    @Param('id') userId: string,
+  ): Promise<UserInfo> {
     console.log('getUserInfo', userId);
     return await this.usersService.getUserInfo(userId);
   }
+
+  // @Get('/:id')
+  // async getUserInfo(
+  //   @Headers() headers: any,
+  //   @Param('id') userId: string,
+  // ): Promise<UserInfo> {
+  //   console.log('getUserInfo', userId);
+  //
+  //   const jwtString = headers.authorization.split('Bearer ')[1];
+  //
+  //   this.authService.verify(jwtString);
+  //
+  //   return await this.usersService.getUserInfo(userId);
+  // }
 }
