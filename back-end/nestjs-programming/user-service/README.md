@@ -1,5 +1,11 @@
 # Main Project - User Service
 
+### TODO
+* 유저 권한 필드 추가
+* 권한에 따라 접근 가능한 API 
+  * getUsers : 전체 유저 데이터 가져오기
+* 유저 비밀번호 해시해서 저장
+
 ### Chapter 3. Controller
 * Init NestJS Project
 * Add User Controller
@@ -97,3 +103,26 @@
     * injected to user service
 * 구현한 서비스
   * sign-in
+
+### Chapter 11. Logger
+* winston library
+  * `npm i nest-winston winston`
+* 전역적으로 사용하도록 설정
+  * `main.ts` 에 로거 설정함으로써 부트스트랩 과정에서도 커스텀 로거 사용 가능
+  * 로거를 사용할 모듈에서 `prioviders`에 추가
+
+### Chapter 12. Exception Filter
+* exception module
+  * `npx @nestjs/cli g module exception`
+  * 커스텀 예외 필터(`HttpExceptionFilter`) 정의
+  * 전역으로 필터 사용을 위해, exception module 에 provider 설정
+* 예외 필터 테스트를 위한 `InternalTestController` 추가
+
+### Chapter 13. Interceptor
+* 라우트 핸들러의 요청 처리 전후에 로깅 남기는 로깅 인터셉터
+
+### Chapter 15. Health Check
+* Terminus library
+  * `npm i @nestjs/terminus`
+  * `npm i @nestjs/axios`: HTTP Health Check 시 필요
+* Health Check Controller

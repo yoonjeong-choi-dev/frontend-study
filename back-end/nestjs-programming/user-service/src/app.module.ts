@@ -5,6 +5,18 @@ import emailConfig from './config/emailConfig';
 import { envValidationSchema } from './config/validationSchema';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import authConfig from './config/authConfig';
+import { ExceptionModule } from './exception/exception.module';
+import { InternalTestController } from './internel-test/internal-test.controller';
+import { LoggingModule } from './logging/logging.module';
+import { HealthCheckController } from './health-check/health-check.controller';
+import { TerminusModule } from '@nestjs/terminus';
+import { HttpModule } from '@nestjs/axios';
+import { CustomHealthCheckIndicator } from './health-check/CustomHealthCheckIndicator';
+// import {
+//   utilities as nestWinstonModuleUtilities,
+//   WinstonModule,
+// } from 'nest-winston';
+// import winston from 'winston';
 
 @Module({
   imports: [
@@ -27,8 +39,25 @@ import authConfig from './config/authConfig';
       migrations: [__dirname + '/**/migrations/*.js'],
       migrationsTableName: 'migrations',
     }),
+    ExceptionModule,
+    LoggingModule,
+    TerminusModule,
+    HttpModule,
+    // WinstonModule.forRoot({
+    //   transports: [
+    //     new winston.transports.Console({
+    //       level: process.env.NODE_ENV === 'production' ? 'info' : 'silly',
+    //       format: winston.format.combine(
+    //         winston.format.timestamp(),
+    //         nestWinstonModuleUtilities.format.nestLike('MyApp', {
+    //           prettyPrint: true,
+    //         }),
+    //       ),
+    //     }),
+    //   ],
+    // }),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [InternalTestController, HealthCheckController],
+  providers: [CustomHealthCheckIndicator],
 })
 export class AppModule {}

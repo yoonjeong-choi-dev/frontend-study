@@ -7,13 +7,15 @@ import {
   Query,
   Headers,
   UseGuards,
+  Inject,
+  Logger,
+  LoggerService,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserInfo } from './UserInfo';
 import { UsersService } from './users.service';
-import { AuthService } from '../auth/auth.service';
 import AuthGuard from '../auth/auth.guard';
 
 @Controller('users')
@@ -21,26 +23,33 @@ export class UsersController {
   // IOC for services
   constructor(
     private usersService: UsersService,
-    private authService: AuthService,
+    // @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: WinstonLogger,
+    @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
   @Post()
   async createUser(@Body() dto: CreateUserDto): Promise<void> {
-    console.log('createUser', dto);
+    // console.log('createUser', dto);
+    this.logger.log(`createUser - ${JSON.stringify(dto)}`);
+
     const { name, email, password } = dto;
     await this.usersService.createUser(name, email, password);
   }
 
   @Post('/email-verify')
   async verifyEmail(@Query() dto: VerifyEmailDto): Promise<string> {
-    console.log('verifyEmail', dto);
+    // console.log('verifyEmail', dto);
+    this.logger.log(`verifyEmail - ${JSON.stringify(dto)}`);
+
     const { signupVerifyToken } = dto;
     return await this.usersService.verifyEmail(signupVerifyToken);
   }
 
   @Post('/sign-in')
   async signIn(@Body() dto: UserLoginDto): Promise<string> {
-    console.log('signIn', dto);
+    // console.log('signIn', dto);
+    this.logger.log(`signIn - ${JSON.stringify(dto)}`);
+
     const { email, password } = dto;
     return await this.usersService.signIn(email, password);
   }
@@ -51,7 +60,8 @@ export class UsersController {
     @Headers() headers: any,
     @Param('id') userId: string,
   ): Promise<UserInfo> {
-    console.log('getUserInfo', userId);
+    // console.log('getUserInfo', userId);
+    this.logger.log(`getUserInfo - ${userId}`);
     return await this.usersService.getUserInfo(userId);
   }
 
