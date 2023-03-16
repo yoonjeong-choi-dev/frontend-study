@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "users.proto";
+
+option go_package = "streaming/service";
+
+service Repos {
+  // server-side stream
+  rpc GetRepos (RepoGetRequest) returns (stream RepoGetResponse) {}
+  // Exercise 9.1
+  rpc CreateBuild (Repository) returns (stream RepoBuildLog){}
+
+  // client-side stream
+  rpc CreateRepos (stream RepoCreateRequest) returns (RepoCreateResponse) {}
+}
+
+message Repository {
+  string id = 1;
+  string name = 2;
+  string url = 3;
+  User owner = 4;
+}
+
+message RepoGetRequest {
+  string creator_id = 1;
+  string id = 2;
+}
+
+// 배열로 응답하지 않고 스트림으로 하나씩 전송
+message RepoGetResponse {
+  Repository repo = 1;
+}
+
+message RepoBuildLog {
+  google.protobuf.Timestamp timestamp = 1;
+  string log = 2;
+}
+
+message RepoCreateRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message RepoCreateResponse {
+  repeated Repository repos = 1;
+}

@@ -1,0 +1,9 @@
+go 1.19
+
+use (
+	service
+	server
+	client
+	client-bid-streaming
+	utils
+)
