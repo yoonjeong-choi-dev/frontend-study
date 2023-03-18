@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "binary-data/service";
+
+service Repo {
+  rpc Create(stream RepoCreateRequest) returns (RepoCreateResponse){}
+}
+
+message Repository {
+  string id = 1;
+  string name = 2;
+  string url = 3;
+}
+
+// 스트리밍 시작 시에 1번만 전송하는 파일 메타데이터
+message RepoContext {
+  string creator_name = 1;
+  string file_name = 2;
+}
+
+message RepoCreateRequest {
+  // 스트리밍 시작 이후부터는 바이너리 데이터만 스트리밍
+  oneof body {
+    RepoContext context = 1;
+    bytes data = 2;
+  }
+}
+
+message RepoCreateResponse {
+  Repository repo = 1;
+  int32 size = 2;
+}
