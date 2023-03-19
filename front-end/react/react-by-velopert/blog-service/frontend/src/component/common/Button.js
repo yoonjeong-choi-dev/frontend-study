@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import palette from '../../lib/styles/palette';
+import { Link } from 'react-router-dom';
 
-const SCButton = styled.button`
+const buttonStyle = css`
   border: none;
   border-radius: 4px;
   font-size: 1rem;
@@ -17,8 +18,42 @@ const SCButton = styled.button`
   &:hover {
     background: ${ palette.gray[6] };
   }
+
+  ${ props =>
+          props.fullWidth &&
+          css`
+            padding: 0.75rem 0;
+            width: 100%;
+            font-size: 1.125rem;
+          `
+  }
+
+  ${ props =>
+          props.indigo &&
+          css`
+            background: ${ palette.indigo[5] };
+
+            &:hover {
+              background: ${ palette.indigo[4] };
+            }
+          `
+  }
 `;
 
-const Button = (props) => <SCButton { ...props } />;
+const SCButton = styled.button`
+  ${ buttonStyle }
+`;
+
+const SCLinkButton = styled(Link)`
+  ${ buttonStyle }
+`;
+
+const Button = (props) => {
+  return props.to ? (
+    <SCLinkButton { ...props } indigo={ props.indigo ? 1 : 0 } />
+  ) : (
+    <SCButton { ...props } />
+  );
+};
 
 export default Button;
