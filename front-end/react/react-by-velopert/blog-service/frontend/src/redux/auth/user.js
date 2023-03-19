@@ -1,7 +1,7 @@
 import { createAction, handleActions } from 'redux-actions';
 
-import createRequestThunk, { createRequestActionTypes } from '../lib/createRequestThunk';
-import * as authAPI from '../lib/api/auth';
+import createRequestThunk, { createRequestActionTypes } from '../../lib/createRequestThunk';
+import * as authAPI from '../../lib/api/auth';
 
 const TEMP_SET_USER = 'user/TEMP_SET_USER';
 const [CHECK, CHECK_SUCCESS, CHECK_FAILURE] = createRequestActionTypes(

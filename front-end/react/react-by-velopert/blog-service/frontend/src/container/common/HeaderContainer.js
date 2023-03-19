@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '../../component/common/Header';
-import { logout } from '../../redux/user';
+import { logout } from '../../redux/auth/user';
 
 const HeaderContainer = () => {
   const { user } = useSelector((state) => ({ user: state.user.user }));

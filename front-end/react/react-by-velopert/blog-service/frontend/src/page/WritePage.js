@@ -1,5 +1,17 @@
+import Responsive from '../component/common/Responsive';
+import EditorContainer from '../container/post/EditorContainer';
+import TagBoxContainer from '../container/post/TagBoxContainer';
+import ActionButtonsContainer from '../container/post/ActionButtonsContainer';
+
+
 const WritePage = () => {
-  return <div>Write Post</div>;
+  return (
+    <Responsive>
+      <EditorContainer />
+      <TagBoxContainer />
+      <ActionButtonsContainer />
+    </Responsive>
+  );
 };
 
 export default WritePage;

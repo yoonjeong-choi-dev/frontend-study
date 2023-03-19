@@ -1,8 +1,8 @@
 import produce from 'immer';
 import { createAction, handleActions } from 'redux-actions';
 
-import createRequestThunk, { createRequestActionTypes } from '../lib/createRequestThunk';
-import * as authAPI from '../lib/api/auth';
+import createRequestThunk, { createRequestActionTypes } from '../../lib/createRequestThunk';
+import * as authAPI from '../../lib/api/auth';
 
 const CHANGE_FIELD = 'auth/CHANGE_FIELD';
 const INITIALIZE_FORM = 'auth/INITIALIZE_FORM';

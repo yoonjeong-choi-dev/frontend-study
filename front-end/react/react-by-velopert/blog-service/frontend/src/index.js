@@ -9,7 +9,7 @@ import './index.css';
 
 import App from './App';
 import rootReducer from './redux';
-import { check, tempSetUser } from './redux/user';
+import { check, tempSetUser } from './redux/auth/user';
 
 const store = createStore(rootReducer,
   composeWithDevTools(applyMiddleware(thunk)),

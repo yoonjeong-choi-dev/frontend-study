@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 
-import { changeField, initializeForm, login } from '../../redux/auth';
+import { changeField, initializeForm, login } from '../../redux/auth/auth';
 import AuthForm from '../../component/auth/AuthForm';
 import { useNavigate } from 'react-router-dom';
-import { check } from '../../redux/user';
+import { check } from '../../redux/auth/user';
 
 const formName = 'login';
 

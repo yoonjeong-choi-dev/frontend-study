@@ -2,9 +2,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { changeField, initializeForm, register } from '../../redux/auth';
+import { changeField, initializeForm, register } from '../../redux/auth/auth';
 import AuthForm from '../../component/auth/AuthForm';
-import { check } from '../../redux/user';
+import { check } from '../../redux/auth/user';
 
 
 const formName = 'register';
