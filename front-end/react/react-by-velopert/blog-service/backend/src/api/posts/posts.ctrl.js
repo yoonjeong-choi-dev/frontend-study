@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const joi = require('joi');
 
+const utils = require('./utils');
 const Post = require('../../models/post');
 
 const { ObjectId } = mongoose.Types;
@@ -52,7 +53,7 @@ exports.write = async (ctx) => {
 
   const post = new Post({
     title,
-    body,
+    body: utils.removeBadTags(body),
     tags,
     user: ctx.state.user,
   });
@@ -80,6 +81,8 @@ exports.list = async (ctx) => {
     ...(tag ? { tags: tag } : {}),
   };
 
+  console.log(page, query);
+
   try {
     // sort with last created item
     const posts = await Post.find(query)
@@ -94,7 +97,7 @@ exports.list = async (ctx) => {
       //.map((post) => post.toJSON()) : lean() 으로 처리
       .map((post) => ({
         ...post,
-        body: post.body.length < 200 ? post.doby : `${ post.body.slice(0, 200) }...`,
+        body: utils.removeHTMLAndShorten(post.body),
       }));
   } catch (e) {
     ctx.throw(500, e);
@@ -131,8 +134,12 @@ exports.update = async (ctx) => {
   }
 
   const { id } = ctx.params;
+  const data = { ...ctx.request.body };
+  if (data.body) {
+    data.body = utils.removeBadTags(data.body);
+  }
   try {
-    const post = await Post.findByIdAndUpdate(id, ctx.request.body, {
+    const post = await Post.findByIdAndUpdate(id, data, {
       new: true,
     }).exec();
     if (!post) {

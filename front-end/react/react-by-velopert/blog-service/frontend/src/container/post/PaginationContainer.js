@@ -2,7 +2,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { POST_LIST_ACTION_TYPE } from '../../redux/post/posts';
 import Pagination from '../../component/post/list/Pagination';
-import { useMemo } from 'react';
 
 const PaginationContainer = () => {
   const { username } = useParams();

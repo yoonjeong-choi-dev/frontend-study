@@ -23,11 +23,11 @@ const SCErrorMessage = styled.div`
   margin-top: 1rem;
 `;
 
-const ActionButtons = ({ onCancel, onSubmit, error }) => {
+const ActionButtons = ({ onCancel, onSubmit, error, isEdit }) => {
   return (
     <SCWrapper>
       <SCButton indigo onClick={ onSubmit }>
-        Create
+        { isEdit ? 'Edit' : 'Create' }
       </SCButton>
       <SCButton onClick={ onCancel }>
         Cancel

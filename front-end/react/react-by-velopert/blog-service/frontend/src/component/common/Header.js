@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import Responsive from './Responsive';
 import Button from './Button';
 
@@ -41,7 +42,7 @@ const Header = ({ user, onLogout }) => {
     <>
       <SCWrapper>
         <SCResponsiveWrapper>
-          <div className='logo'>Blog Service</div>
+          <Link to='/' className='logo'>Blog Service</Link>
           { user ? (
             <div className='right'>
               <SCUserInfo>{ user.name }</SCUserInfo>

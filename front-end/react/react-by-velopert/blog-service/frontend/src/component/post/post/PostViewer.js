@@ -26,7 +26,7 @@ const SCContent = styled.div`
   color: ${ palette.gray[8] };;
 `;
 
-const PostViewer = ({ post, error, loading }) => {
+const PostViewer = ({ post, error, loading, actionButtons }) => {
   if (error) {
     if (error.response) {
       const code = error.response.status;
@@ -55,6 +55,7 @@ const PostViewer = ({ post, error, loading }) => {
         />
         <Tags tags={ tags } />
       </SCHeader>
+      { actionButtons }
       <SCContent dangerouslySetInnerHTML={ { __html: body } } />
     </SCWrapper>
   );

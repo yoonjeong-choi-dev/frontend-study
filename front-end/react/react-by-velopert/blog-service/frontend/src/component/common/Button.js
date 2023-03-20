@@ -15,6 +15,12 @@ const buttonStyle = css`
 
   background: ${ palette.gray[8] };
 
+  &:disabled {
+    background: ${ palette.gray[3] };
+    color: ${ palette.gray[5] };
+    cursor: not-allowed;
+  }
+
   &:hover {
     background: ${ palette.gray[6] };
   }

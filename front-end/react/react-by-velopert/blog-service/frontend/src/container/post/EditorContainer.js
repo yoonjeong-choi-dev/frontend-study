@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { changeField, initializeField } from '../../redux/post/write';
 import Editor from '../../component/post/write/Editor';
 
-const EditorContainer = () => {
+const EditorContainer = ({isEdit}) => {
   const dispatch = useDispatch();
   const { title, body } = useSelector((state) => ({
     title: state.write.title,
@@ -14,14 +14,14 @@ const EditorContainer = () => {
       dispatch(changeField(payload))
     , [dispatch]);
 
+  // TODO
   useEffect(() => {
-    // initialize the form state when unmount
-    return () => {
+    if(!isEdit) {
       dispatch(initializeField());
     }
-  },[]);
+  }, [isEdit]);
 
-  return <Editor onChangeField={onChangeField} title={title} body={body}/>
+  return <Editor onChangeField={ onChangeField } title={ title } body={ body } />;
 };
 
 export default EditorContainer;
