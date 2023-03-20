@@ -13,6 +13,11 @@ function videoStreamHandler(app, dbClient) {
   const db = dbClient.db(DB_NAME);
   const videosCollection = db.collection('videos');
 
+  app.get('/test', (req, res)=>{
+    console.log('GET /test', req);
+    res.send('Live Reloading Test');
+  });
+
   app.get('/video', (req, res) => {
     const videoId = new mongodb.ObjectId(req.query.id);
     console.log(`Request with Id ${videoId}`);

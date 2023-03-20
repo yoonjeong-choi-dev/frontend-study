@@ -1,0 +1,10 @@
+FROM node:18.14-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+# 컨테이너 시작 시, npm install 명령어 수행
+# => host pc에서 종속성을 캐싱하여 빠르게 종속성 설치 가능
+CMD npm install --cache-min 9999999 && \
+    npm run start:dev

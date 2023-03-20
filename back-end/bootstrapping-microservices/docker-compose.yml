@@ -12,8 +12,14 @@ services:
     image: azure-storage
     build:
       context: ./azure-storage
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     container_name: video-storage
+    volumes:
+      # 개발 환경의 소스코드를 컨테이너와 공유: <local path>:<container path>:option
+      - ./azure-storage/src:/usr/src/app/src:z
+      # npm config ls -l | grep cache 통해서 캐시 위치 확인
+      - /Users/yjchoi/.npm:/root/.npm:z
+    # <host port>:<container port>
     ports:
       - "4001:80"
     env_file:
@@ -26,8 +32,13 @@ services:
     image: video-streaming
     build:
       context: ./video-streaming
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     container_name: video-streaming
+    volumes:
+      # 개발 환경의 소스코드를 컨테이너와 공유: <local path>:<container path>:option
+      - ./video-streaming/src:/usr/src/app/src:z
+      # npm config ls -l | grep cache 통해서 캐시 위치 확인
+      - /Users/yjchoi/.npm:/root/.npm:z
     # <host port>:<container port>
     ports:
       - "4002:80"
@@ -37,4 +48,22 @@ services:
       - VIDEO_STORAGE_PORT=80
       - DB_HOST=mongodb://db:27017
       - DB_NAME=video-streaming
+    restart: "no"
+
+  history:
+    image: history
+    build:
+      context: ./history
+      dockerfile: Dockerfile-dev
+    container_name: history
+    volumes:
+      # 개발 환경의 소스코드를 컨테이너와 공유: <local path>:<container path>:option
+      - ./history/src:/usr/src/app/src:z
+      # npm config ls -l | grep cache 통해서 캐시 위치 확인
+      - /Users/yjchoi/.npm:/root/.npm:z
+    ports:
+      - "4003:80"
+    environment:
+      - PORT=80
+      - NODE_ENV=development
     restart: "no"

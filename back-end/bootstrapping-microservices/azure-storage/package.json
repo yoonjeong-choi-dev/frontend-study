@@ -4,8 +4,8 @@
   "description": "Azure Video Storage Service",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "start:dev": "nodemon src/index.js"
+    "start": "node ./src/index.js",
+    "start:dev": "nodemon --legacy-watch ./src/index.js"
   },
   "author": "Yoonjeong Choi",
   "license": "ISC",
