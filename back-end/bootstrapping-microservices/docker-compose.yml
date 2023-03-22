@@ -8,6 +8,19 @@ services:
       - "4000:27017"
     restart: always
 
+  rabbit:
+    image: rabbitmq:3.8.5-management
+    container_name: rabbit
+    ports:
+      # 서버 API 호출을 위한 포트
+      - "5672:5672"
+      # 대시보드 포트
+      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+    restart: always
+
   azure-storage:
     image: azure-storage
     build:
@@ -26,6 +39,7 @@ services:
       - ./azure-storage/.env.development
     environment:
       - PORT=80
+      - NODE_ENV=development
     restart: "no"
 
   video-streaming:
@@ -44,10 +58,15 @@ services:
       - "4002:80"
     environment:
       - PORT=80
+      - NODE_ENV=development
       - VIDEO_STORAGE_HOST=video-storage
       - VIDEO_STORAGE_PORT=80
       - DB_HOST=mongodb://db:27017
       - DB_NAME=video-streaming
+      - RABBIT_HOST=amqp://guest:guest@rabbit:5672
+    depends_on:
+      - db
+      - rabbit
     restart: "no"
 
   history:
@@ -66,4 +85,10 @@ services:
     environment:
       - PORT=80
       - NODE_ENV=development
+      - DB_HOST=mongodb://db:27017
+      - DB_NAME=history
+      - RABBIT_HOST=amqp://guest:guest@rabbit:5672
+    depends_on:
+      - db
+      - rabbit
     restart: "no"
