@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "tls/service";
+
+service Greeting {
+  rpc SayHi(User) returns (GreetMessage) {}
+}
+
+message User {
+  string name = 1;
+}
+
+message GreetMessage {
+  string message = 1;
+}
