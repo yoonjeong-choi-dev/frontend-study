@@ -4,18 +4,4 @@ use (
 	service
 	server
 	client
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/yj
-	server/tmp/anonymous
-	server/tmp/anonymous
-	server/tmp/anonymous
-	server/tmp/anonymous
-	server/tmp/anonymous
-	server/tmp/anonymous
-	server/tmp/anonymous
 )
