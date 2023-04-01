@@ -8,13 +8,24 @@ playground/
 *.iml
 out/
 
+### Environment Files
+.env
+.env.development
+.env.production
+
+### Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+
 
 ### node ###
 node_modules/
 node_modules
-.env
-.env.development
-.env.production
 photos/
 
 # Coverage directory used by tools like istanbul
