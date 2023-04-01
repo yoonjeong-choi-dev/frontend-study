@@ -1,0 +1,22 @@
+{
+  "name": "sample-video-streaming",
+  "version": "1.0.0",
+  "description": "Sample service for testing terraform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "start:dev": "nodemon --legacy-watch ./src/index.js"
+  },
+  "author": "Yoonjeong Choi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.35.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.7.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.3.2"
+  }
+}
