@@ -92,3 +92,32 @@ services:
       - db
       - rabbit
     restart: "no"
+
+  metadata:
+    image: metadata
+    build:
+      context: ./metadata
+      dockerfile: Dockerfile-dev
+    container_name: metadata
+    volumes:
+      - ./metadata/src:/usr/src/app/src:z
+      - /Users/yjchoi/.npm:/root/.npm:z
+    ports:
+      - "4004:80"
+    environment:
+      - PORT=80
+      - NODE_ENV=development
+      - DB_HOST=mongodb://db:27017
+      - DB_NAME=metadata
+      - RABBIT_HOST=amqp://guest:guest@rabbit:5672
+    depends_on:
+      - db
+      - rabbit
+    restart: "no"
+
+  test-db:
+    image: mongo:4.2.8
+    container_name: test-db
+    ports:
+      - "7166:27017"
+    restart: always
