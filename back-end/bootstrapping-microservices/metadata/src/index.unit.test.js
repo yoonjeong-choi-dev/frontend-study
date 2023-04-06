@@ -5,11 +5,13 @@ describe('metadata microservice unit test', () => {
   // 해당 함수가 호출되었는지 여부 확인을 위한 Mock Function
   const mockListenFn = jest.fn((port, callback) => callback());
   const mockGetFn = jest.fn();
+  const mockUseFn = jest.fn();
 
   // Mock the express module
   jest.doMock('express', () => () => ({
     listen: mockListenFn,
     get: mockGetFn,
+    use: mockUseFn,
   }));
 
   // Mock database collection.
@@ -31,6 +33,25 @@ describe('metadata microservice unit test', () => {
       // Mock MongoClient.
       connect: async () => mockMongoClient,
     },
+  }));
+
+  // Mock RabbitMQ
+  const messageChannel = {
+    ack: async () => {},
+    assertQueue: async () => ({
+      queue: {},
+    }),
+    consume: async () => {},
+    assertExchange: async () => {},
+    bindQueue: async () => {},
+  };
+
+  const mockMQConnection = {
+    createChannel: async () => messageChannel,
+  };
+
+  jest.doMock('amqplib', () => ({
+    connect: async () => mockMQConnection,
   }));
 
   // ############################
@@ -84,5 +105,4 @@ describe('metadata microservice unit test', () => {
       videos: [mockRecord1, mockRecord2],
     });
   });
-
 });

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose down && docker-compose up --build
+docker-compose down --remove-orphans && docker-compose up --build

@@ -5,8 +5,27 @@ const amqp = require('amqplib');
 
 const { DB_HOST, DB_NAME, RABBIT_HOST } = process.env;
 
-function connectDB(dbHost, dbName) {
-  return mongodb.MongoClient.connect(dbHost).then(client => client.db(dbName));
+if (!DB_HOST) {
+  throw new Error(
+    'Please specify the database host using environment variable DB_HOST.',
+  );
+}
+if (!DB_NAME) {
+  throw new Error(
+    'Please specify the database name using environment variable DB_NAME.',
+  );
+}
+
+if (!RABBIT_HOST) {
+  throw new Error(
+    'Please specify the RabbitMQ name using environment variable RABBIT_HOST.',
+  );
+}
+
+function connectDB() {
+  return mongodb.MongoClient.connect(DB_HOST).then(client =>
+    client.db(DB_NAME),
+  );
 }
 
 function connectRabbit() {
@@ -17,17 +36,25 @@ function connectRabbit() {
 }
 
 function consumeViewedMessage(dbCollection, messageChannel, message) {
-  console.log('Consume message: ', message);
   const parsedMsg = JSON.parse(message.content.toString());
   console.log('Data in message: ', message.content.toString());
-  return dbCollection.insertOne({ videoPath: parsedMsg.videoPath }).then(() => {
-    messageChannel.ack(message);
-  });
+
+  return dbCollection
+    .insertOne({
+      videoId: parsedMsg.video.id,
+      watched: new Date(),
+    }) // Record the "view" in the database.
+    .then(() => {
+      console.log('Acknowledging message was handled.');
+
+      // 성공적으로 처리한 경우, 메시지 consume
+      messageChannel.ack(message);
+    });
 }
 
 function setupHandler(app, db, messageChannel) {
   const messageCollection = db.collection('messages');
-  const videosCollection = db.collection('videosHistory');
+  const videosCollection = db.collection('videos');
   app.post('/message', (req, res) => {
     const { message } = req.body;
     messageCollection
@@ -42,6 +69,20 @@ function setupHandler(app, db, messageChannel) {
         console.error(`Error for saving ${message} to db`);
         console.error((err && err.stack) || err);
         res.sendStatus(500);
+      });
+  });
+
+  app.get('/videos', (req, res) => {
+    videosCollection
+      .find()
+      .toArray()
+      .then(videos => {
+        res.json({ videos });
+      })
+      .catch(err => {
+        console.error('Fail to get videos collection from database');
+        console.error((err && err.stack) || err);
+        req.sendStatus(500);
       });
   });
 
@@ -64,7 +105,7 @@ function setupHandler(app, db, messageChannel) {
       const queueName = response.queue;
       return messageChannel.bindQueue(queueName, 'viewed', '').then(() => {
         console.log('Get a binding queue with name "viewed"');
-        return messageChannel.consume('viewed', msg =>
+        return messageChannel.consume(queueName, msg =>
           consumeViewedMessage(videosCollection, messageChannel, msg),
         );
       });
@@ -85,7 +126,7 @@ function startServer(db, messageChannel) {
 }
 
 function main() {
-  return connectDB(DB_HOST, DB_NAME).then(db => {
+  return connectDB().then(db => {
     console.log('Success to connect with MongoDB');
 
     return connectRabbit().then(messageChannel => {

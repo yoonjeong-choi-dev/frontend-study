@@ -21,18 +21,38 @@ services:
       - "15672"
     restart: always
 
-  azure-storage:
-    image: azure-storage
+#  video-storage:
+#    image: azure-storage
+#    build:
+#      context: ./azure-storage
+#      dockerfile: Dockerfile-dev
+#    container_name: video-storage
+#    volumes:
+#      # 개발 환경의 소스코드를 컨테이너와 공유: <local path>:<container path>:option
+#      - ./azure-storage/src:/usr/src/app/src:z
+#      # npm config ls -l | grep cache 통해서 캐시 위치 확인
+#      - /Users/yjchoi/.npm:/root/.npm:z
+#    # <host port>:<container port>
+#    ports:
+#      - "4001:80"
+#    env_file:
+#      - ./azure-storage/.env.development
+#    environment:
+#      - PORT=80
+#      - NODE_ENV=development
+#      - AZURE_STORAGE_CONTAINER_NAME=videos
+#    restart: "no"
+
+  video-storage:
+    image: mock-storage
     build:
-      context: ./azure-storage
+      context: ./mock-storage
       dockerfile: Dockerfile-dev
     container_name: video-storage
     volumes:
-      # 개발 환경의 소스코드를 컨테이너와 공유: <local path>:<container path>:option
-      - ./azure-storage/src:/usr/src/app/src:z
-      # npm config ls -l | grep cache 통해서 캐시 위치 확인
+      - ./mock-storage/src:/usr/src/app/src:z
+      - ./mock-storage/tmp/storage:/usr/src/app/tmp/storage:z
       - /Users/yjchoi/.npm:/root/.npm:z
-    # <host port>:<container port>
     ports:
       - "4001:80"
     env_file:
@@ -40,6 +60,7 @@ services:
     environment:
       - PORT=80
       - NODE_ENV=development
+      - AZURE_STORAGE_CONTAINER_NAME=videos
     restart: "no"
 
   video-streaming:
@@ -61,11 +82,8 @@ services:
       - NODE_ENV=development
       - VIDEO_STORAGE_HOST=video-storage
       - VIDEO_STORAGE_PORT=80
-      - DB_HOST=mongodb://db:27017
-      - DB_NAME=video-streaming
       - RABBIT_HOST=amqp://guest:guest@rabbit:5672
     depends_on:
-      - db
       - rabbit
     restart: "no"
 
@@ -115,6 +133,51 @@ services:
       - rabbit
     restart: "no"
 
+  gateway:
+    image: gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile-dev
+    container_name: gateway
+    volumes:
+      - ./gateway/src:/usr/src/app/src:z
+      - ./gateway/public:/usr/src/app/public:z
+      - /Users/yjchoi/.npm:/root/.npm:z
+    ports:
+      - "4005:80"
+    depends_on:
+      - rabbit
+      - video-storage
+      - video-upload
+    environment:
+      - PORT=80
+      - NODE_ENV=development
+      - METADATA_HOST=metadata
+      - STREAMING_HOST=video-streaming
+      - HISTORY_HOST=history
+      - UPLOAD_HOST=video-upload
+
+  video-upload:
+    image: video-upload
+    build:
+      context: ./video-upload
+      dockerfile: Dockerfile-dev
+    container_name: video-upload
+    volumes:
+      - ./video-upload/src:/usr/src/app/src:z
+      - /Users/yjchoi/.npm:/root/.npm:z
+    ports:
+      - "4006:80"
+    depends_on:
+      - video-streaming
+      - metadata
+      - history
+    environment:
+      - PORT=80
+      - NODE_ENV=development
+      - METADATA_HOST=metadata
+      - STORAGE_HOST=video-storage
+      - RABBIT_HOST=amqp://guest:guest@rabbit:5672
   test-db:
     image: mongo:4.2.8
     container_name: test-db

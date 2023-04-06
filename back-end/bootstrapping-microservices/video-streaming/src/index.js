@@ -1,27 +1,20 @@
 const http = require('http');
 const express = require('express');
-const mongodb = require('mongodb');
 const amqp = require('amqplib');
 
-const {
-  PORT,
-  VIDEO_STORAGE_HOST,
-  VIDEO_STORAGE_PORT,
-  DB_HOST,
-  DB_NAME,
-  RABBIT_HOST,
-} = process.env;
+const { PORT, VIDEO_STORAGE_HOST, VIDEO_STORAGE_PORT, RABBIT_HOST } =
+  process.env;
 
-function connectDB() {
-  return mongodb.MongoClient.connect(DB_HOST);
-}
-
-function connectRabbitWithSingleRecipient() {
-  return amqp.connect(RABBIT_HOST).then(connection => {
-    console.log('Connected to RabbitMQ');
-    return connection.createChannel();
-  });
-}
+// function connectDB() {
+//   return mongodb.MongoClient.connect(DB_HOST);
+// }
+//
+// function connectRabbitWithSingleRecipient() {
+//   return amqp.connect(RABBIT_HOST).then(connection => {
+//     console.log('Connected to RabbitMQ');
+//     return connection.createChannel();
+//   });
+// }
 
 function connectRabbit() {
   return amqp.connect(RABBIT_HOST).then(connection => {
@@ -65,17 +58,14 @@ function sendDirectMessage(message) {
   request.end();
 }
 
-function publishMessage(messageChannel, videoPath) {
+function publishMessage(messageChannel, videoId) {
   console.log('Start to publish message on "viewed" queue');
 
-  const msg = { videoPath };
-  messageChannel.publish('', 'viewed', Buffer.from(JSON.stringify(msg)));
+  const msg = { video: { id: videoId } };
+  messageChannel.publish('viewed', '', Buffer.from(JSON.stringify(msg)));
 }
 
-function videoStreamHandler(app, dbClient, messageChannel) {
-  const db = dbClient.db(DB_NAME);
-  const videosCollection = db.collection('videos');
-
+function setupHandlers(app, messageChannel) {
   app.get('/reload', (req, res) => {
     console.log('GET /reload');
     res.send('Live Reloading Test');
@@ -89,57 +79,53 @@ function videoStreamHandler(app, dbClient, messageChannel) {
   });
 
   app.get('/video', (req, res) => {
-    const videoId = new mongodb.ObjectId(req.query.id);
-    console.log(`Request with Id ${videoId}`);
-    videosCollection
-      .findOne({ _id: videoId })
-      .then(record => {
-        if (!record) {
-          console.log(`There is no data with id ${videoId}`);
-          res.sendStatus(404);
-          return;
-        }
+    const videoId = req.query.id;
 
-        console.log(`Start forwarding request with path ${record.videoPath}`);
-        const forwardReq = http.request(
-          {
-            host: VIDEO_STORAGE_HOST,
-            port: VIDEO_STORAGE_PORT,
-            path: `/video?path=${record.videoPath}`,
-            method: 'GET',
-            headers: req.headers,
-          },
-          forwardRes => {
-            res.writeHead(forwardRes.statusCode, forwardRes.headers);
-            forwardRes.pipe(res);
-          },
-        );
-        req.pipe(forwardReq);
+    console.log(`Start forwarding request with id ${videoId}`);
+    const forwardReq = http.request(
+      {
+        host: VIDEO_STORAGE_HOST,
+        port: VIDEO_STORAGE_PORT,
+        path: `/video?id=${videoId}`,
+        method: 'GET',
+        headers: req.headers,
+      },
+      forwardRes => {
+        res.writeHead(forwardRes.statusCode, forwardRes.headers);
+        forwardRes.pipe(res);
+      },
+    );
+    req.pipe(forwardReq);
 
-        // Publish the viewed data to message queue
-        publishMessage(messageChannel, record.videoPath);
-      })
-      .catch(err => {
-        console.error('Database query failed');
-        console.error((err && err.stack) || err);
-        req.sendStatus(500);
-      });
+    // Publish the viewed data to message queue
+    publishMessage(messageChannel, videoId);
   });
 }
 
-function startServer() {
+function startServer(messageChannel) {
+  // return new Promise(resolve => {
+  //   const app = express();
+  //   connectDB().then(client => {
+  //     console.log('Success to connect with MongoDB');
+  //     // return connectRabbitWithSingleRecipient().then(messageChannel => {
+  //     return connectRabbit().then(messageChannel => {
+  //       console.log('Success to connect with RabbitMQ');
+  //       return videoStreamHandler(app, client, messageChannel);
+  //     });
+  //   });
+  //   app.listen(PORT, () => {
+  //     console.log(`Streaming Service App listening on port ${PORT}`);
+  //     resolve();
+  //   });
+  // });
+
   return new Promise(resolve => {
     const app = express();
-    connectDB().then(client => {
-      console.log('Success to connect with MongoDB');
-      // return connectRabbitWithSingleRecipient().then(messageChannel => {
-      return connectRabbit().then(messageChannel => {
-        console.log('Success to connect with RabbitMQ');
-        return videoStreamHandler(app, client, messageChannel);
-      });
-    });
-    app.listen(PORT, () => {
-      console.log(`Streaming Service App listening on port ${PORT}`);
+    setupHandlers(app, messageChannel);
+
+    const port = (PORT && parseInt(PORT, 10)) || 3000;
+    app.listen(port, () => {
+      console.log(`Streaming Service App listening on port ${port}`);
       resolve();
     });
   });
@@ -150,7 +136,7 @@ function main() {
     `Forwarding video requests to ${VIDEO_STORAGE_HOST}:${VIDEO_STORAGE_PORT}.`,
   );
 
-  return startServer();
+  return connectRabbit().then(messageChannel => startServer(messageChannel));
 }
 
 main()

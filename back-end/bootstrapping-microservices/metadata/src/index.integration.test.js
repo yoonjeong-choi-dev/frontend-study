@@ -11,6 +11,7 @@ describe('metadata microservice integration test', () => {
   const BASE_URL = 'http://localhost:3000';
   const DB_HOST = 'mongodb://localhost:7166'; // Set the port in docker compose
   const DB_NAME = 'testdb';
+  const RABBIT_HOST = 'amqp://guest:guest@rabbit:5672';
 
   // ############################
   // Import modules to test
@@ -23,7 +24,7 @@ describe('metadata microservice integration test', () => {
   // ############################
   let microservice;
   beforeAll(async () => {
-    microservice = await startMicroservice(DB_HOST, DB_NAME);
+    microservice = await startMicroservice(DB_HOST, DB_NAME, RABBIT_HOST);
   });
   afterAll(async () => {
     await microservice.close();
@@ -52,7 +53,7 @@ describe('metadata microservice integration test', () => {
     const response = await httpGetHelper('/videos');
     expect(response.status).toEqual(200);
 
-    const {videos} = response.data;
+    const { videos } = response.data;
     expect(videos.length).toEqual(data.length);
     for (let i = 0; i < 2; i += 1) {
       // eslint-disable-next-line no-underscore-dangle
