@@ -17,8 +17,7 @@ variable app_version {}
 // azure 인증에 필요한 변수들
 // : 민감한 정보이기 때문에 코드에 설정하지 않음
 // => terraform apply 실행 시 입력
-variable client_id {
-}
-
-variable client_secret {
-}
+variable client_id {}
+variable client_secret {}
+variable storage_account_name {}
+variable storage_access_key {}

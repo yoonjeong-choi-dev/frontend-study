@@ -3,7 +3,7 @@ const express = require('express');
 const amqp = require('amqplib');
 const mongodb = require('mongodb');
 
-const { PORT, RABBIT_HOST, STORAGE_HOST } = process.env;
+const { PORT, RABBIT_HOST, VIDEO_STORAGE_HOST } = process.env;
 
 if (!RABBIT_HOST) {
   throw new Error(
@@ -11,9 +11,9 @@ if (!RABBIT_HOST) {
   );
 }
 
-if (!STORAGE_HOST) {
+if (!VIDEO_STORAGE_HOST) {
   throw new Error(
-    'Please specify the video storage service name using environment variable STORAGE_HOST.',
+    'Please specify the video storage service name using environment variable VIDEO_STORAGE_HOST.',
   );
 }
 
@@ -63,7 +63,7 @@ function setupHandler(app, messageChannel) {
       id: videoId,
     };
 
-    streamToHttpPost(req, STORAGE_HOST, '/upload', newHeaders)
+    streamToHttpPost(req, VIDEO_STORAGE_HOST, '/upload', newHeaders)
       .then(() => {
         res.sendStatus(200);
       })

@@ -41,7 +41,8 @@ resource "kubernetes_deployment" "database" {
 # service: 클러스터 내 다른 컨테이너가 접근 가능하도록 DNS 레코드를 생성하는 역할
 resource "kubernetes_service" "database" {
   metadata {
-    name = "database"
+    # host name: mongodb://{name}:27017
+    name = "db"
   }
 
   spec {
@@ -51,11 +52,12 @@ resource "kubernetes_service" "database" {
 
     port {
       port = 27017
+      target_port = 27017
     }
 
     # azure 로드밸런서를 이용하여 외부에 서비스 노출
     # i.e public IP 할당
     # => 배포 테스트용(운영에서는 노출X)
-    type = "LoadBalancer"
+    #type = "LoadBalancer"
   }
 }

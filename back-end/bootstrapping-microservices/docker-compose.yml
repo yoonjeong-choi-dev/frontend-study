@@ -176,7 +176,7 @@ services:
       - PORT=80
       - NODE_ENV=development
       - METADATA_HOST=metadata
-      - STORAGE_HOST=video-storage
+      - VIDEO_STORAGE_HOST=video-storage
       - RABBIT_HOST=amqp://guest:guest@rabbit:5672
   test-db:
     image: mongo:4.2.8

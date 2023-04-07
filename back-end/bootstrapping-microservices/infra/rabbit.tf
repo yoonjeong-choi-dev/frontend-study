@@ -1,6 +1,6 @@
 resource "kubernetes_deployment" "rabbit" {
   metadata {
-    name="rabbit"
+    name = "rabbit"
 
     labels = {
       pod = "rabbit"
@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "rabbit" {
       spec {
         container {
           image = "rabbitmq:3.8.5-management"
-          name = "rabbit"
+          name  = "rabbit"
 
           port {
             container_port = 5672
@@ -47,7 +47,8 @@ resource "kubernetes_service" "rabbit" {
     }
 
     port {
-      port = 5672
+      port        = 5672
+      target_port = 5672
     }
   }
 }
@@ -55,7 +56,7 @@ resource "kubernetes_service" "rabbit" {
 # For dashboard
 resource "kubernetes_service" "rabbit_dashboard" {
   metadata {
-    name="rabbit-dashboard"
+    name = "rabbit-dashboard"
   }
 
   spec {
