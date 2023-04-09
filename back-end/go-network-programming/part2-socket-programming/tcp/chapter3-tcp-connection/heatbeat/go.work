@@ -1,0 +1,7 @@
+go 1.19
+
+use (
+"ping"
+"in-memory-ping-example"
+"handle-deadline-by-ping"
+)
