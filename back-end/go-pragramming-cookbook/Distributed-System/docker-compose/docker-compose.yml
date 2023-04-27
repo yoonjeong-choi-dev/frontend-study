@@ -1,0 +1,8 @@
+version: '2'
+services:
+  mongo-client:
+    build: .
+  mongodb:
+    image: "mongo:latest"
+    ports:
+      - "27017:27017"

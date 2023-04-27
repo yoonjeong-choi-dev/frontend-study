@@ -1,0 +1,12 @@
+version: '2'
+services:
+  yj-app:
+    build: .
+    ports:
+      - "7166:80"
+  prometheus:
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    image: "prom/prometheus"
