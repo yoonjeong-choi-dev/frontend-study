@@ -1,0 +1,9 @@
+runtime: go118
+
+manual_scaling:
+  instances: 1
+
+#[START env_variables]
+env_variables:
+  GCLOUD_DATASET_ID: yj-golang
+#[END env_variables]
