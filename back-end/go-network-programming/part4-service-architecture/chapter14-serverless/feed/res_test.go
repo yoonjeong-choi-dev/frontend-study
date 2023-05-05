@@ -12,11 +12,11 @@ func TestRSS_ParseURL(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if rss.entityTag == "" {
+	if rss.EntityTag == "" {
 		t.Error("unexpected empty Etag")
 	}
 
-	etag := rss.entityTag
+	etag := rss.EntityTag
 	t.Logf("RSS Etag: %s\n", etag)
 
 	err = rss.ParseURL(context.Background(), "https://xkcd.com/rss.xml")
@@ -24,7 +24,7 @@ func TestRSS_ParseURL(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if etag != rss.entityTag {
+	if etag != rss.EntityTag {
 		t.Log("entity update -> new Etag on second request")
 	}
 

@@ -18,7 +18,7 @@ type RSS struct {
 	Channel struct {
 		Items []Item `xml:"item"`
 	} `xml:"channel"`
-	entityTag string // Etag
+	EntityTag string // Etag
 }
 
 func (r *RSS) Items() []Item {
@@ -33,8 +33,8 @@ func (r *RSS) ParseURL(ctx context.Context, url string) error {
 		return err
 	}
 
-	if r.entityTag != "" {
-		req.Header.Add("ETag", r.entityTag)
+	if r.EntityTag != "" {
+		req.Header.Add("ETag", r.EntityTag)
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -57,7 +57,7 @@ func (r *RSS) ParseURL(ctx context.Context, url string) error {
 			return err
 		}
 
-		r.entityTag = res.Header.Get("ETag")
+		r.EntityTag = res.Header.Get("ETag")
 	default:
 		return fmt.Errorf("unexpected status code: %v", res.StatusCode)
 	}
