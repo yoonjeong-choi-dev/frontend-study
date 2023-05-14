@@ -52,6 +52,7 @@ func (r *RSS) ParseURL(ctx context.Context, url string) error {
 		}
 		_ = res.Body.Close()
 
+		r.Channel.Items = make([]Item, 0)
 		err = xml.Unmarshal(b, r)
 		if err != nil {
 			return err
