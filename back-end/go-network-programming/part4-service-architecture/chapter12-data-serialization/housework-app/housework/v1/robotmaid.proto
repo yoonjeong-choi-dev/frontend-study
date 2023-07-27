@@ -1,0 +1,21 @@
+syntax = "proto3";
+import "housework.proto";
+
+package housework;
+option go_package = "housework/v1/housework";
+
+service RobotMaid {
+  rpc Add (Chores) returns (Response);
+  rpc Complete (CompleteRequest) returns (Response);
+  rpc List (Empty) returns (Chores);
+}
+
+message Empty {}
+
+message Response {
+  string message = 1;
+}
+
+message CompleteRequest {
+  int32 chore_number = 1;
+}
